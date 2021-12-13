@@ -18,8 +18,9 @@ class Proizvodjac{
         $data=[];
         $proizvodjac=$rezultat->fetch_assoc();
         while(isset($proizvodjac)){
-            $data[]=$proizvodjac;
+            $data[]=new Proizvodjac($proizvodjac['id'],$proizvodjac['naziv']);
         }
+        return $data;
     }
 }
 
