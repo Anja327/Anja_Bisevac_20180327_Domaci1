@@ -7,7 +7,7 @@ class Kartica{
     private $proizvodjac;
     private $korisnik;
 
-    public function __construct($id=null, $brojKartice=null, $racun=null, $korisnik=null){
+    public function __construct($id=null, $brojKartice=null, $racun=null, $korisnik=null,$proizvodjac){
         $this->id = $id;
         $this->brojKartice = $brojKartice;
         $this->racun = $racun;
