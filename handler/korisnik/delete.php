@@ -9,7 +9,7 @@ if(!isset($_POST['id'])){
 
 try {
     $korisnik=new Korisnik($_POST['id']);
-    $korinik->deleteById($conn);
+    $korisnik->deleteById($conn);
     echo "uspesno obrisan korisnik";
 } catch (Exception $ex) {
    echo $ex->getMessage();

@@ -16,15 +16,15 @@ class Kartica{
     }
 
     public static function getAll(mysqli $conn){
-        $query = "SELECT * FROM korisnik";
+        $query = "select * FROM kartica";
         $rezultat = $conn->query($query);
         if(!$rezultat){
             throw new  Exception($conn->error);
         }
         $data=[];
-        $korisnik=$rezultat->fetch_assoc();
-        while(isset($korisnik)){
-            $data[]=new Korisnik($korisnik['id'],$korisnik['ime'],$korisnik['prezime'],$korisnik['licnaKarta']);
+        
+        while($kartica=$rezultat->fetch_assoc()){
+            $data[]= $kartica;
         }
         return $data;
     }

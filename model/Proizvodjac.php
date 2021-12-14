@@ -10,15 +10,15 @@ class Proizvodjac{
     }
 
     public static function getAll(mysqli $conn){
-        $query = "SELECT * FROM korisnik";
+        $query = "SELECT * FROM proizvodjac";
         $rezultat = $conn->query($query);
         if(!$rezultat){
             throw new  Exception($conn->error);
         }
         $data=[];
-        $proizvodjac=$rezultat->fetch_assoc();
-        while(isset($proizvodjac)){
-            $data[]=new Proizvodjac($proizvodjac['id'],$proizvodjac['naziv']);
+        
+        while($proizvodjac=$rezultat->fetch_assoc()){
+            $data[]=$proizvodjac;
         }
         return $data;
     }

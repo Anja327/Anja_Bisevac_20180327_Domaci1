@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Korisnici</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top bg-dark">
+        <a class="navbar-brand" href="index.html">Kartice </a>
+
+        <div class="navbar-collapse collapse">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item mx-auto">
+                    <a class="nav-link" href="index.html">Kartice</a>
+                </li>
+                <li class="nav-item mx-auto">
+                    <a class="nav-link" href="korisnici.html">Korisnici</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-3">
+        <div class="row mb-4">
+            <div class="col-10"></div>
+            <div class="col-2">
+                <button data-toggle='modal' data-target='#exampleModal' class="btn btn-primary">Kreiraj</button>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ime</th>
+                    <th>Prezime</th>
+                    <th>Licna karta</th>
+                    <th>Akcije</th>
+                </tr>
+            </thead>
+            <tbody id='korisnici'>
+
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Forma korisnik</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <form id="forma">
+                        <div class="form-group">
+                            <label for="ime" class="col-form-label">Ime</label>
+                            <input required type="text" class="form-control" id="ime">
+                        </div>
+                        <div class="form-group">
+                            <label for="prezime" class="col-form-label">Prezime</label>
+                            <input required class="form-control" id="prezime">
+                        </div>
+                        <div class="form-group">
+                            <label for="licna" class="col-form-label">Broj licne karte</label>
+                            <input required class="form-control" id="licna">
+                        </div>
+                        <button type="submit" class="btn btn-primary form-control">Sacuvaj</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="./main.js"></script>
+    <script>
+        let id = 0;
+        $(document).ready(() => {
+            ucitajKorisnike()
+            $('#exampleModal').on('show.bs.modal', e => {
+                id = ucitajUFormu(e, ['ime', 'prezime', 'licna']);
+            })
+            $('#forma').submit(e => {
+                e.preventDefault();
+                let telo = {
+                    ime: $('#ime').val(),
+                    prezime: $('#prezime').val(),
+                    licnaKarta: $('#licna').val(),
+                    id
+                }
+                $.post(`./handler/korisnik/${id ? 'update' : 'add'}.php`, telo).then(res => {
+                    alert(res);
+                    ucitajKorisnike();
+                })
+            })
+        })
+        function ucitajKorisnike() {
+            obradiGet('./handler/korisnik/getAll.php', $('#korisnici'), korisnik => `
+                <tr>
+                    <td>${korisnik.id}</td>
+                    <td>${korisnik.ime}</td>
+                    <td>${korisnik.prezime}</td>
+                    <td>${korisnik.licna_karta}</td>
+                    <td>
+                        <button
+                        data-toggle='modal' 
+                        data-target='#exampleModal'
+                        data-id='${korisnik.id}'
+                        data-ime='${korisnik.ime}'
+                        data-prezime='${korisnik.prezime}'
+                        data-licna='${korisnik.licna_karta}'
+                        class='btn btn-success form-control'>Izmeni</button>
+                        <button onClick="obrisiKorisnika(${korisnik.id})" class='btn btn-danger form-control'>Obrisi</button>
+                    </td>
+                </tr>
+            `);
+        }
+        function obrisiKorisnika(id) {
+            $.post('./handler/korisnik/delete.php', { id }).then(res => {
+                alert(res);
+                ucitajKorisnike();
+            })
+        }
+    </script>
+</body>
+
+</html>

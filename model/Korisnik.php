@@ -14,15 +14,14 @@ class Korisnik{
     }
 
     public static function getAll(mysqli $conn){
-        $query = "SELECT * FROM korisnik";
+        $query = "select * from korisnik";
         $rezultat = $conn->query($query);
         if(!$rezultat){
             throw new  Exception($conn->error);
         }
         $data=[];
-        $korisnik=$rezultat->fetch_assoc();
-        while(isset($korisnik)){
-            $data[]=new Korisnik($korisnik['id'],$korisnik['ime'],$korisnik['prezime'],$korisnik['licnaKarta']);
+        while($korisnik=$rezultat->fetch_assoc()){
+            $data[]=$korisnik;
         }
         return $data;
     }
