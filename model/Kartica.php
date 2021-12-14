@@ -16,7 +16,7 @@ class Kartica{
     }
 
     public static function getAll(mysqli $conn){
-        $query = "select * FROM kartica";
+        $query = "select k.*, p.naziv as 'naziv_proizvodjaca', CONCAT(ko.ime,' ',ko.prezime) as 'naziv_korisnika' FROM kartica k inner join proizvodjac p on (p.id = k.proizvodjac) inner join korisnik ko on (ko.id= k.korisnik)";
         $rezultat = $conn->query($query);
         if(!$rezultat){
             throw new  Exception($conn->error);
@@ -29,14 +29,14 @@ class Kartica{
         return $data;
     }
     public static function add($dto,mysqli $conn){
-        $query = "insert into kartica(brojKartice,racun,proizvodjac,korisnik) values('".$dto['brojKartice']."','".$dto['racun']."',".$dto['proizvodjac'].",".$dto['korisnik'].")";
+        $query = "insert into kartica(broj_kartice,racun,proizvodjac,korisnik) values('".$dto['brojKartice']."','".$dto['racun']."',".$dto['proizvodjac'].",".$dto['korisnik'].")";
         $rezultat = $conn->query($query);
         if(!$rezultat){
             throw new  Exception($conn->error);
         }
     }
     public function update(mysqli $conn){
-        $query = "update kartica set brojKartice='".$this->brojKartice."', racun='".$this->racun."', proizvodjac=".$this->proizvodjac.", korisnik=".$this->korisnik." where id=".$this->id;
+        $query = "update kartica set broj_kartice='".$this->brojKartice."', racun='".$this->racun."', proizvodjac=".$this->proizvodjac.", korisnik=".$this->korisnik." where id=".$this->id;
         $rezultat = $conn->query($query);
         if(!$rezultat){
             throw new  Exception($conn->error);

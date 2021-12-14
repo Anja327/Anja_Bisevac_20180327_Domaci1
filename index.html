@@ -25,11 +25,188 @@
             </ul>
         </div>
     </nav>
+
+    <div class="container mt-2">
+        <div class="row mb-4">
+            <div class="col-10"></div>
+            <div class="col-2">
+                <button data-toggle='modal' data-target='#exampleModal' class="btn btn-primary">Kreiraj</button>
+            </div>
+        </div>
+        <div class="row mb-5">
+            <div class="col-4">
+                <select id="sort" class="form-control">
+                    <option value="1">Sortiraj po broju - Rastuce</option>
+                    <option value="-1">Sortiraj po broju - Opadajuce</option>
+                </select>
+            </div>
+            <div class="col-4">
+                <select id="korisnik_pretraga" class="form-control"></select>
+            </div>
+            <div class="col-4">
+                <select id="proizvodjac_pretraga" class="form-control"></select>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Broj kartice</th>
+                    <th>Broj racuna</th>
+                    <th>Korisnik</th>
+                    <th>Proizvodjac</th>
+                    <th>Akcije</th>
+                </tr>
+            </thead>
+            <tbody id='kartice'>
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Forma kartica</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <form id="forma">
+                        <div class="form-group">
+                            <label for="broj" class="col-form-label">Broj kartice</label>
+                            <input required type="text" class="form-control" id="broj">
+                        </div>
+                        <div class="form-group">
+                            <label for="korisnik" class="col-form-label">Korisnik</label>
+                            <select required class="form-control" id="korisnik"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="racun" class="col-form-label">Racun</label>
+                            <input required class="form-control" id="racun">
+                        </div>
+                        <div class="form-group">
+                            <label for="proizvodjac" class="col-form-label">Proizvodjac</label>
+                            <select required class="form-control" id="proizvodjac"></select>
+                        </div>
+                        <button type="submit" class="btn btn-primary form-control">Sacuvaj</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-    <script src="./js/main.js"></script>
+    <script src="./main.js"></script>
+
+    <script>
+        let id = 0;
+        let kartice = [];
+        $(document).ready(() => {
+            obradiGet('./handler/korisnik/getAll.php', $('#korisnik_pretraga'), korisnik => `
+                <option value='${korisnik.id}'>
+                    ${korisnik.ime + ' ' + korisnik.prezime}
+                </option>
+            `, '<option value=0 >Svi korisnici</option>')
+            obradiGet('./handler/korisnik/getAll.php', $('#korisnik'), korisnik => `
+                <option value='${korisnik.id}'>
+                    ${korisnik.ime + ' ' + korisnik.prezime}
+                </option>
+            `)
+            obradiGet('./handler/proizvodjac/getAll.php', $('#proizvodjac_pretraga'), proizvodjac => `
+                <option value='${proizvodjac.id}'>
+                    ${proizvodjac.naziv}
+                </option>
+            `, '<option value=0 >Svi proizvodjaci</option>')
+            obradiGet('./handler/proizvodjac/getAll.php', $('#proizvodjac'), proizvodjac => `
+                <option value='${proizvodjac.id}'>
+                    ${proizvodjac.naziv}
+                </option>
+            `)
+            ucitajKartice()
+            $('#exampleModal').on('show.bs.modal', e => {
+                id = ucitajUFormu(e, ['broj', 'korisnik', 'racun', 'proizvodjac'])
+            })
+            $('#forma').submit(e => {
+                e.preventDefault();
+                const telo = {
+                    id,
+                    brojKartice: $('#broj').val(),
+                    racun: $('#racun').val(),
+                    proizvodjac: $('#proizvodjac').val(),
+                    korisnik: $('#korisnik').val(),
+                }
+                $.post(`./handler/kartica/${id ? 'update' : 'add'}.php`, telo).then(res => {
+                    alert(res);
+                    ucitajKartice();
+                })
+            })
+            $('#sort').change(icrtajTabelu);
+            $('#korisnik_pretraga').change(icrtajTabelu);
+            $('#proizvodjac_pretraga').change(icrtajTabelu);
+        })
+
+        function ucitajKartice() {
+            $.getJSON('./handler/kartica/getAll.php').then(res => {
+                if (res.greska) {
+                    alert(res.greska);
+                    return;
+                }
+                kartice = res;
+                icrtajTabelu();
+            })
+        }
+        function icrtajTabelu() {
+            const sort = Number($('#sort').val());
+            const korisnik = Number($('#korisnik_pretraga').val());
+            const proizvodjac = Number($('#proizvodjac_pretraga').val());
+
+            const filtrirane = kartice.filter(kartica => {
+                return (korisnik === 0 || kartica.korisnik == korisnik) && (proizvodjac === 0 || kartica.proizvodjac == proizvodjac)
+            }).sort((a, b) => {
+                return a.broj_kartice > b.broj_kartice ? sort : 0 - sort;
+            })
+            $('#kartice').html('');
+            for (let kartica of filtrirane) {
+                $('#kartice').append(`
+                    <tr>
+                        <td>${kartica.id}</td>    
+                        <td>${kartica.broj_kartice}</td>    
+                        <td>${kartica.racun}</td>    
+                        <td>${kartica.naziv_korisnika}</td>    
+                        <td>${kartica.naziv_proizvodjaca}</td>    
+                        <td>
+                        <button
+                        data-toggle='modal' 
+                        data-target='#exampleModal'
+                        data-id='${kartica.id}'
+                        data-broj='${kartica.broj_kartice}'
+                        data-korisnik='${kartica.korisnik}'
+                        data-racun='${kartica.racun}'
+                        data-proizvodjac='${kartica.proizvodjac}'
+                        class='btn btn-success form-control'>Izmeni</button>
+                        <button onClick="obrisikarticu(${kartica.id})" class='btn btn-danger form-control'>Obrisi</button>
+                    </td>
+                    </tr>
+                `)
+            }
+        }
+        function obrisikarticu(id) {
+            $.post('./handler/kartica/delete.php', { id }).then(res => {
+                alert(res);
+                ucitajKartice();
+            })
+        }
+    </script>
 </body>
 
 </html>

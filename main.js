@@ -1,11 +1,11 @@
-function obradiGet(putanja, htmlElement, elementRenderer) {
+function obradiGet(putanja, htmlElement, elementRenderer, pocetno = '') {
 
     $.getJSON(putanja).then(res => {
         if (res.greska) {
             alert(res.greska);
             return;
         }
-        htmlElement.html('');
+        htmlElement.html(pocetno);
         for (let element of res) {
             htmlElement.append(elementRenderer(element));
         }
