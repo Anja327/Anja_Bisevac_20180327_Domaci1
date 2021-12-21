@@ -100,7 +100,7 @@
                     ime: $('#ime').val(),
                     prezime: $('#prezime').val(),
                     licnaKarta: $('#licna').val(),
-                    id
+                    id: id
                 }
                 $.post(`./handler/korisnik/${id ? 'update' : 'add'}.php`, telo).then(res => {
                     alert(res);

@@ -1,6 +1,6 @@
 <?php
 require "../../dbBroker.php";
-require "../../model/Korisnik.php";
+include "../../model/Korisnik.php";
 
 try {
     $korisnik = new Korisnik($_POST['id'],$_POST['ime'],$_POST['prezime'],$_POST['licnaKarta']);

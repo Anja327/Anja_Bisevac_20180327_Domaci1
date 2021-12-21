@@ -9,7 +9,7 @@ if(!isset($_POST['id'])){
 
 try {
     $kartica=new Kartica($_POST['id']);
-    $korinik->deleteById($conn);
+    $kartica->deleteById($conn);
     echo "uspesno obrisana kartica";
 } catch (Exception $ex) {
    echo $ex->getMessage();
